@@ -87,7 +87,10 @@ class TaskLostIntegrationTest extends IntegrationFunSuite with WithMesosCluster 
 
     Then("The task is killed due to GC timeout and a replacement is started")
     val marathonName = ProcessKeeper.processNames.find(_.startsWith("marathon")).getOrElse(fail("no Marathon process found"))
-    waitForProcessLogMessage(marathonName) { line => line.contains(s"[${task.id}] is lost since") && line.contains("and will be expunged") }
+
+    waitForProcessLogMessage(marathonName) { line =>
+      line.contains(task.id) && line.contains("will be expunged")
+    }
     val replacement = waitForTasks(app.id, 1).head
     replacement should not be task
   }
